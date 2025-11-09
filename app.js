@@ -11,7 +11,7 @@ let player1 = new Player(canvas)
 player1.draw(ctx)
 
 let enemy_list = []
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < 10; i++) {
     let enemy1 = new Enemy(canvas)
     enemy_list.push(enemy1)
 }
@@ -25,6 +25,7 @@ function loop() {
         e.draw(ctx)
     }
    
+    player1.update(enemy_list)
     player1.draw(ctx)
 }
 
