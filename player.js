@@ -1,3 +1,4 @@
+import Bullet from "./bullet.js"
 export default class Player {
     constructor(canvas) {
         this.x = 100
@@ -10,6 +11,15 @@ export default class Player {
         this.right = false
         this.up = false
         this.down = false
+        this.shooting = false
+
+        // Shooting mode 1 == normal shooting, 2 == shooting everywhere around the player
+        this.shootingMode = 1
+        this.bullet_timer = Date.now() // Number of milliseconds since Jan 1, 1970 12:00am
+        this.bullet_delay = 250
+        this.dead = false
+        
+        console.log(this.bullet_timer)
         // Keyboard Event
         document.addEventListener("keydown", e => {
             if (e.key == "ArrowUp" || e.key == "w") {
@@ -23,6 +33,9 @@ export default class Player {
             }
             if (e.key == "ArrowLeft" || e.key == "a") {
                 this.left = true
+            }
+            if (e.key == " ") {
+                this.shooting = true
             }
         })
         document.addEventListener("keyup", e => {
@@ -38,19 +51,53 @@ export default class Player {
             if (e.key == "ArrowLeft" || e.key == "a") {
                 this.left = false
             }
+            if (e.key == " ") {
+                this.shooting = false
+            }
         })
     }
     
-    update(enemy_list) {
+    update(enemy_list, bullet_list, powerup_list) {
+        if (this.dead) {
+            this.radius = 0
+        }
+
+        if (this.shooting && this.dead == false) {
+            if (Date.now() - this.bullet_timer > this.bullet_delay) {
+                this.bullet_timer = Date.now()
+                let b = new Bullet(this.canvas, this.x, this.y)
+                bullet_list.push(b)
+
+                if (this.shootingMode == 2) {
+                    bullet_list.push(new Bullet(this.canvas, this.x, this.y + 50))
+                }
+            }
+        }
+
+
+
         // enemy x, enemy y, player x, player y, enemy radius, player radius
         for (let e of enemy_list) {
             let distX = e.x - this.x
             let distY = e.y - this.y
             let distance = Math.sqrt(distX * distX + distY * distY)
             if (distance < e.size + this.radius) {
-                this.radius = 0
+                this.dead = true
             }    
         }
+
+        for (let e of powerup_list) {
+            let distX = e.x - this.x
+            let distY = e.y - this.y
+            
+            let distance = Math.sqrt(distX * distX + distY * distY)
+            if (distance < e.size + this.radius) {
+                e.deleteMe = true
+                this.shootingMode = 2
+            }    
+        }
+
+
         let speed = 5
         if (this.up) {
             this.dy = -speed

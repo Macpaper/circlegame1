@@ -6,6 +6,7 @@ export default class Enemy {
         this.dy = Math.random() * 10 - 5
         this.size = Math.random() * 50 + 10
         this.canvas = canvas
+        this.dead = false
 
         let r = Math.random() * 255 
         let g = Math.random() * 255
@@ -20,6 +21,10 @@ export default class Enemy {
         let y = this.y
         ctx.arc(x, y, this.size, 0, Math.PI * 2)
         ctx.fill()
+
+        if (this.size < 10) {
+            this.dead = true
+        }
 
         if (y > this.canvas.height || y < 0) {
             this.dy = -this.dy
